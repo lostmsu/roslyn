@@ -126,16 +126,13 @@ namespace Microsoft.CodeAnalysis.Formatting
         /// </summary>
         protected abstract bool IsEndOfLine(SyntaxTrivia trivia);
 
-        /// <summary>
-        /// check whether given string is either null or whitespace
-        /// </summary>
-        protected bool IsNullOrWhitespace(string text)
-        {
-            if (text == null)
-            {
-                return true;
-            }
 
+        protected bool IsNullOrWhitespace(string text) => text == null || IsWhitespace(text.AsSpan());
+        /// <summary>
+        /// check whether given string is whitespace
+        /// </summary>
+        protected bool IsWhitespace(ReadOnlySpan<char> text)
+        {
             for (int i = 0; i < text.Length; i++)
             {
                 if (!IsWhitespace(text[i]) || !IsNewLine(text[i]))
@@ -489,7 +486,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                 return true;
             }
 
-            var index = this.OriginalString.IndexOf(IsNewLine);
+            var index = this.OriginalString.AsSpan().IndexOf(IsNewLine);
             if (index < 0)
             {
                 return IsNullOrWhitespace(this.OriginalString);
@@ -581,8 +578,8 @@ namespace Microsoft.CodeAnalysis.Formatting
 
         private int GetIndentation()
         {
-            var lastText = this.OriginalString.GetLastLineText();
-            var initialColumn = (lastText == this.OriginalString) ? this.InitialLineColumn.Column : 0;
+            var lastText = this.OriginalString.AsSpan().GetLastLineText();
+            var initialColumn = (lastText.Length == this.OriginalString.Length) ? this.InitialLineColumn.Column : 0;
 
             var index = lastText.GetFirstNonWhitespaceIndexInString();
             if (index < 0)
@@ -643,7 +640,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             // can't find any line, put blank line right after any trivia that has lines in them
             for (int i = changes.Count - 1; i >= 0; i--)
             {
-                if (changes[i].ToFullString().ContainsLineBreak())
+                if (changes[i].ToFullString().AsSpan().ContainsLineBreak())
                 {
                     return i + 1;
                 }
@@ -671,7 +668,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             if (TryGetMatchingChangeIndex(changes, out var index))
             {
                 // already change exist at same position that contains only whitespace
-                var delta = GetLineColumnDelta(0, changes[index].NewText);
+                var delta = GetLineColumnDelta(0, changes[index].NewText.AsSpan());
 
                 changes[index] = GetWhitespaceTextChange(
                     LineColumn.Default,
@@ -878,7 +875,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             var text = trivia2.ToFullString();
             return new LineColumnDelta(
                 lines: 0,
-                spaces: text.ConvertTabToSpace(this.OptionSet.GetOption(FormattingOptions.TabSize, this.Language), lineColumn.With(whitespaceBetween).Column, text.Length),
+                spaces: text.AsSpan().ConvertTabToSpace(this.OptionSet.GetOption(FormattingOptions.TabSize, this.Language), lineColumn.With(whitespaceBetween).Column, text.Length),
                 whitespaceOnly: true,
                 forceUpdate: false);
         }
@@ -887,7 +884,7 @@ namespace Microsoft.CodeAnalysis.Formatting
         {
             var tokenText = this.Token1.ToString();
             var initialColumn = this.Token1.RawKind == 0 ? 0 : this.TokenStream.GetCurrentColumn(this.Token1);
-            var delta = GetLineColumnDelta(initialColumn, tokenText);
+            var delta = GetLineColumnDelta(initialColumn, tokenText.AsSpan());
 
             return new LineColumn(line: 0, column: initialColumn + delta.Spaces, whitespaceOnly: delta.WhitespaceOnly);
         }
@@ -896,17 +893,17 @@ namespace Microsoft.CodeAnalysis.Formatting
         {
             var text = trivia.ToFullString();
 
-            return lineColumn.With(GetLineColumnDelta(lineColumn.Column, text));
+            return lineColumn.With(GetLineColumnDelta(lineColumn.Column, text.AsSpan()));
         }
 
         protected LineColumnDelta GetLineColumnDelta(LineColumn lineColumn, SyntaxTrivia trivia)
         {
             var text = trivia.ToFullString();
 
-            return GetLineColumnDelta(lineColumn.Column, text);
+            return GetLineColumnDelta(lineColumn.Column, text.AsSpan());
         }
 
-        protected LineColumnDelta GetLineColumnDelta(int initialColumn, string text)
+        protected LineColumnDelta GetLineColumnDelta(int initialColumn, ReadOnlySpan<char> text)
         {
             var lineText = text.GetLastLineText();
 
@@ -915,19 +912,19 @@ namespace Microsoft.CodeAnalysis.Formatting
                 return new LineColumnDelta(
                     lines: text.GetNumberOfLineBreaks(),
                     spaces: lineText.GetColumnFromLineOffset(lineText.Length, this.OptionSet.GetOption(FormattingOptions.TabSize, this.Language)),
-                    whitespaceOnly: IsNullOrWhitespace(lineText));
+                    whitespaceOnly: IsWhitespace(lineText));
             }
 
             return new LineColumnDelta(
                 lines: 0,
                 spaces: text.ConvertTabToSpace(this.OptionSet.GetOption(FormattingOptions.TabSize, this.Language), initialColumn, text.Length),
-                whitespaceOnly: IsNullOrWhitespace(lineText));
+                whitespaceOnly: IsWhitespace(lineText));
         }
 
         protected int GetExistingIndentation(SyntaxTrivia trivia)
         {
             var offset = trivia.FullSpan.Start - this.StartPosition;
-            var originalText = this.OriginalString.Substring(0, offset);
+            var originalText = this.OriginalString.AsSpan().Slice(0, offset);
             var delta = GetLineColumnDelta(this.InitialLineColumn.Column, originalText);
 
             return this.InitialLineColumn.With(delta).Column;

@@ -217,7 +217,7 @@ namespace Microsoft.CodeAnalysis.LanguageServices
             {
                 // This allocated.  But we only do it in the string case. For all other tokens
                 // we don't need any allocations.
-                if (!IsOnSingleLine(token.ToString()))
+                if (!IsOnSingleLine(token.ToString().AsSpan()))
                 {
                     return false;
                 }
@@ -253,7 +253,7 @@ namespace Microsoft.CodeAnalysis.LanguageServices
                         // Was some other form of trivia (like a comment).  Easiest thing
                         // to do is just stringify this and count the number of newlines.
                         // these should be rare.  So the allocation here is ok.
-                        if (!IsOnSingleLine(trivia.ToString()))
+                        if (!IsOnSingleLine(trivia.ToString().AsSpan()))
                         {
                             return false;
                         }
@@ -264,8 +264,7 @@ namespace Microsoft.CodeAnalysis.LanguageServices
             return true;
         }
 
-        private bool IsOnSingleLine(string value)
-            => value.GetNumberOfLineBreaks() == 0;
+        private bool IsOnSingleLine(ReadOnlySpan<char> value) => !value.ContainsLineBreak();
 
         public abstract bool IsStringLiteral(SyntaxToken token);
         public abstract bool IsInterpolatedStringTextToken(SyntaxToken token);

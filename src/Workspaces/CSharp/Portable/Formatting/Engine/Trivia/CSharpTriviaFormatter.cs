@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
@@ -252,7 +253,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
 
             if (trivia.IsSingleLineDocComment())
             {
-                var text = trivia.ToFullString();
+                var text = trivia.ToFullString().AsSpan();
 
                 // When the doc comment is parsed from source, even if it is only one
                 // line long, the end-of-line will get included into the trivia text.

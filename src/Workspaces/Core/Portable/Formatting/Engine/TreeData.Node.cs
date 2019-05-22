@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Shared.Utilities;
 using Roslyn.Utilities;
@@ -24,7 +25,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                 var startToken = GetTokenWithLineBreaks(token);
 
                 // get last line text from text between them
-                var lineText = GetTextBetween(startToken, token).GetLastLineText();
+                var lineText = GetTextBetween(startToken, token).AsSpan().GetLastLineText();
 
                 return lineText.GetColumnFromLineOffset(lineText.Length, tabSize);
             }

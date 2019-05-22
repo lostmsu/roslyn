@@ -3,6 +3,7 @@
 using System;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Shared.Utilities;
 using Roslyn.Utilities;
@@ -286,7 +287,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Utilities
             return previousToken.Kind() == SyntaxKind.None ? token : previousToken;
         }
 
-        public static bool AreTwoTokensOnSameLine(SyntaxToken token1, SyntaxToken token2)
+        public static bool AreTwoTokensOnSameLine(in SyntaxToken token1, in SyntaxToken token2)
         {
             var tree = token1.SyntaxTree;
             if (tree != null && tree.TryGetText(out var text))
@@ -294,10 +295,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Utilities
                 return text.AreOnSameLine(token1, token2);
             }
 
-            return !CommonFormattingHelpers.GetTextBetween(token1, token2).ContainsLineBreak();
+            var textBetween = StringBuilderPool.Allocate();
+            CommonFormattingHelpers.AppendTextBetween(token1, token2, textBetween);
+            return !textBetween.ContainsLineBreak();
         }
 
-        private static SyntaxToken GetAppropriatePreviousToken(SyntaxToken startToken, bool canTokenBeFirstInABlock = false)
+        private static SyntaxToken GetAppropriatePreviousToken(in SyntaxToken startToken, bool canTokenBeFirstInABlock = false)
         {
             var previousToken = startToken.GetPreviousToken();
             if (previousToken.Kind() == SyntaxKind.None)
@@ -334,7 +337,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Utilities
             return previousToken;
         }
 
-        private static bool IsOpenBraceTokenOfABlockOrTypeOrNamespace(SyntaxToken previousToken)
+        private static bool IsOpenBraceTokenOfABlockOrTypeOrNamespace(in SyntaxToken previousToken)
         {
             return previousToken.IsKind(SyntaxKind.OpenBraceToken) &&
                                     (previousToken.Parent.IsKind(SyntaxKind.Block) ||

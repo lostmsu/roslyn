@@ -23,7 +23,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
                 return result;
             }
 
-            public static AnalysisResult Trailing(SyntaxToken token)
+            public static AnalysisResult Trailing(in SyntaxToken token)
             {
                 var result = default(AnalysisResult);
                 Analyze(token.TrailingTrivia, ref result);
@@ -31,7 +31,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
                 return result;
             }
 
-            public static AnalysisResult Between(SyntaxToken token1, SyntaxToken token2)
+            public static AnalysisResult Between(in SyntaxToken token1, in SyntaxToken token2)
             {
                 if (!token1.HasTrailingTrivia && !token2.HasLeadingTrivia)
                 {
@@ -94,7 +94,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
                 return result;
             }
 
-            private static void Analyze(SyntaxTriviaList list, ref AnalysisResult result)
+            private static void Analyze(in SyntaxTriviaList list, ref AnalysisResult result)
             {
                 if (list.Count == 0)
                 {
@@ -137,7 +137,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
                 }
             }
 
-            private static void AnalyzeLineBreak(SyntaxTrivia trivia, ref AnalysisResult result)
+            private static void AnalyzeLineBreak(in SyntaxTrivia trivia, ref AnalysisResult result)
             {
                 // if there was any space before line break, then we have trailing spaces
                 if (result.Space > 0 || result.Tab > 0)
@@ -154,7 +154,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
                 result.TreatAsElastic |= trivia.IsElastic();
             }
 
-            private static void AnalyzeWhitespacesInTrivia(SyntaxTrivia trivia, ref AnalysisResult result)
+            private static void AnalyzeWhitespacesInTrivia(in SyntaxTrivia trivia, ref AnalysisResult result)
             {
                 // trivia already has text. getting text should be noop
                 Debug.Assert(trivia.Kind() == SyntaxKind.WhitespaceTrivia);

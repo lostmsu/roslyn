@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
@@ -40,7 +41,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                     return _treeData.GetOriginalColumn(tabSize, token);
                 }
 
-                var text = _trivia.ToFullString().Substring(0, token.SpanStart - _trivia.FullSpan.Start);
+                var text = _trivia.ToFullString().AsSpan().Slice(0, token.SpanStart - _trivia.FullSpan.Start);
 
                 return text.GetTextColumn(tabSize, _initialColumn);
             }

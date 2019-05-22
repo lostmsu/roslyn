@@ -28,7 +28,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
             {
             }
 
-            protected override void ExtractLineAndSpace(string text, out int lines, out int spaces)
+            protected override void ExtractLineAndSpace(ReadOnlySpan<char> text, out int lines, out int spaces)
             {
                 text.ProcessTextBetweenTokens(this.TreeInfo, this.Token1, this.OptionSet.GetOption(FormattingOptions.TabSize, LanguageNames.CSharp), out lines, out spaces);
             }

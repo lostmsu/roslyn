@@ -3,16 +3,15 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Shared.Extensions
 {
     internal static class StringExtensions
     {
-        public static int? GetFirstNonWhitespaceOffset(this string line)
+        public static int? GetFirstNonWhitespaceOffset(this ReadOnlySpan<char> line)
         {
-            Contract.ThrowIfNull(line);
-
             for (int i = 0; i < line.Length; i++)
             {
                 if (!char.IsWhiteSpace(line[i]))
@@ -24,21 +23,19 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             return null;
         }
 
-        public static string GetLeadingWhitespace(this string lineText)
+        public static ReadOnlySpan<char> GetLeadingWhitespace(this ReadOnlySpan<char> lineText)
         {
-            Contract.ThrowIfNull(lineText);
-
             var firstOffset = lineText.GetFirstNonWhitespaceOffset();
 
             return firstOffset.HasValue
-                ? lineText.Substring(0, firstOffset.Value)
+                ? lineText.Slice(0, firstOffset.Value)
                 : lineText;
         }
 
-        public static int GetTextColumn(this string text, int tabSize, int initialColumn)
+        public static int GetTextColumn(this ReadOnlySpan<char> text, int tabSize, int initialColumn)
         {
             var lineText = text.GetLastLineText();
-            if (text != lineText)
+            if (text.SequenceEqual(lineText))
             {
                 return lineText.GetColumnFromLineOffset(lineText.Length, tabSize);
             }
@@ -46,7 +43,7 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             return text.ConvertTabToSpace(tabSize, initialColumn, text.Length) + initialColumn;
         }
 
-        public static int ConvertTabToSpace(this string textSnippet, int tabSize, int initialColumn, int endPosition)
+        public static int ConvertTabToSpace(this ReadOnlySpan<char> textSnippet, int tabSize, int initialColumn, int endPosition)
         {
             Debug.Assert(tabSize > 0);
             Debug.Assert(endPosition >= 0 && endPosition <= textSnippet.Length);
@@ -69,13 +66,8 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             return column - initialColumn;
         }
 
-        public static int IndexOf(this string text, Func<char, bool> predicate)
+        public static int IndexOf(this ReadOnlySpan<char> text, Func<char, bool> predicate)
         {
-            if (text == null)
-            {
-                return -1;
-            }
-
             for (int i = 0; i < text.Length; i++)
             {
                 if (predicate(text[i]))
@@ -87,7 +79,7 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             return -1;
         }
 
-        public static string GetFirstLineText(this string text)
+        public static ReadOnlySpan<char> GetFirstLineText(this ReadOnlySpan<char> text)
         {
             var lineBreak = text.IndexOf('\n');
             if (lineBreak < 0)
@@ -95,10 +87,10 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
                 return text;
             }
 
-            return text.Substring(0, lineBreak + 1);
+            return text.Slice(0, lineBreak + 1);
         }
 
-        public static string GetLastLineText(this string text)
+        public static ReadOnlySpan<char> GetLastLineText(this ReadOnlySpan<char> text)
         {
             var lineBreak = text.LastIndexOf('\n');
             if (lineBreak < 0)
@@ -106,10 +98,10 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
                 return text;
             }
 
-            return text.Substring(lineBreak + 1);
+            return text.Slice(lineBreak + 1);
         }
 
-        public static bool ContainsLineBreak(this string text)
+        public static bool ContainsLineBreak(this ReadOnlySpan<char> text)
         {
             foreach (char ch in text)
             {
@@ -122,7 +114,21 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             return false;
         }
 
-        public static int GetNumberOfLineBreaks(this string text)
+        public static bool ContainsLineBreak(this StringBuilder text)
+        {
+            for (int i = 0; i < text.Length; i++)
+            {
+                char ch = text[i];
+                if (ch == '\n' || ch == '\r')
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static int GetNumberOfLineBreaks(this ReadOnlySpan<char> text)
         {
             int lineBreaks = 0;
             for (int i = 0; i < text.Length; i++)
@@ -143,7 +149,7 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             return lineBreaks;
         }
 
-        public static bool ContainsTab(this string text)
+        public static bool ContainsTab(this ReadOnlySpan<char> text)
         {
             // PERF: Tried replacing this with "text.IndexOf('\t')>=0", but that was actually slightly slower
             foreach (char ch in text)
@@ -162,7 +168,7 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             return ImmutableArray.Create(new SymbolDisplayPart(SymbolDisplayPartKind.Text, null, text));
         }
 
-        public static int GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(this string line, int tabSize)
+        public static int GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(this ReadOnlySpan<char> line, int tabSize)
         {
             var firstNonWhitespaceChar = line.GetFirstNonWhitespaceOffset();
 
@@ -177,18 +183,16 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             }
         }
 
-        public static int GetColumnFromLineOffset(this string line, int endPosition, int tabSize)
+        public static int GetColumnFromLineOffset(this ReadOnlySpan<char> line, int endPosition, int tabSize)
         {
-            Contract.ThrowIfNull(line);
             Contract.ThrowIfFalse(0 <= endPosition && endPosition <= line.Length);
             Contract.ThrowIfFalse(tabSize > 0);
 
             return ConvertTabToSpace(line, tabSize, 0, endPosition);
         }
 
-        public static int GetLineOffsetFromColumn(this string line, int column, int tabSize)
+        public static int GetLineOffsetFromColumn(this ReadOnlySpan<char> line, int column, int tabSize)
         {
-            Contract.ThrowIfNull(line);
             Contract.ThrowIfFalse(column >= 0);
             Contract.ThrowIfFalse(tabSize > 0);
 

@@ -341,7 +341,7 @@ namespace Microsoft.CodeAnalysis.Formatting
         public void GetTokenLength(in SyntaxToken token, out int length, out bool onMultipleLines)
         {
             // here, we can't just add token's length since there is token that span multiple lines.
-            var text = token.ToString();
+            var text = token.ToString().AsSpan();
 
             // multiple lines
             if (text.ContainsLineBreak())

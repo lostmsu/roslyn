@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Shared.Utilities;
@@ -31,13 +32,13 @@ namespace Microsoft.CodeAnalysis.Formatting
 
                 this.TreeInfo = treeInfo;
                 this.OriginalString = this.TreeInfo.GetTextBetween(token1, token2);
-                ExtractLineAndSpace(this.OriginalString, out var lineBreaks, out var spaces);
+                ExtractLineAndSpace(this.OriginalString.AsSpan(), out var lineBreaks, out var spaces);
 
                 this.LineBreaks = lineBreaks;
                 this.Spaces = spaces;
             }
 
-            protected abstract void ExtractLineAndSpace(string text, out int lines, out int spaces);
+            protected abstract void ExtractLineAndSpace(ReadOnlySpan<char> text, out int lines, out int spaces);
             protected abstract TriviaData CreateComplexTrivia(int line, int space);
             protected abstract TriviaData CreateComplexTrivia(int line, int space, int indentation);
             protected abstract TriviaDataWithList Format(FormattingContext context, ChainedFormattingRules formattingRules, int lines, int spaces, CancellationToken cancellationToken);
@@ -142,7 +143,7 @@ namespace Microsoft.CodeAnalysis.Formatting
 
                 // okay, we need to do expansive calculation to find out actual space between two tokens
                 var trivia = Format(context, formattingRules, this.LineBreaks, indentation, cancellationToken);
-                var triviaString = CreateString(trivia, cancellationToken);
+                var triviaString = CreateString(trivia, cancellationToken).AsSpan();
                 ExtractLineAndSpace(triviaString, out var lineBreaks, out var spaces);
 
                 return CreateComplexTrivia(lineBreaks, spaces, indentation);

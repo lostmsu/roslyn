@@ -137,7 +137,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
         private int CalculateSpaces(in SyntaxToken token1, in SyntaxToken token2)
         {
             var initialColumn = (token1.RawKind == 0) ? 0 : this.TreeInfo.GetOriginalColumn(this.OptionSet.GetOption(FormattingOptions.TabSize, LanguageNames.CSharp), token1) + token1.Span.Length;
-            var textSnippet = this.TreeInfo.GetTextBetween(token1, token2);
+            var textSnippet = this.TreeInfo.GetTextBetween(token1, token2).AsSpan();
 
             return textSnippet.ConvertTabToSpace(this.OptionSet.GetOption(FormattingOptions.TabSize, LanguageNames.CSharp), initialColumn, textSnippet.Length);
         }

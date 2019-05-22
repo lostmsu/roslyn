@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.CodeAnalysis.Shared.Extensions
@@ -42,12 +43,12 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
         /// </summary>
         public static int? GetFirstNonWhitespaceOffset(this TextLine line)
         {
-            return line.ToString().GetFirstNonWhitespaceOffset();
+            return line.ToString().AsSpan().GetFirstNonWhitespaceOffset();
         }
 
         public static string GetLeadingWhitespace(this TextLine line)
         {
-            return line.ToString().GetLeadingWhitespace();
+            return line.ToString().AsSpan().GetLeadingWhitespace().ToString();
         }
 
         /// <summary>
@@ -69,17 +70,17 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
 
         public static int GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(this TextLine line, int tabSize)
         {
-            return line.ToString().GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(tabSize);
+            return line.ToString().AsSpan().GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(tabSize);
         }
 
         public static int GetColumnFromLineOffset(this TextLine line, int lineOffset, int tabSize)
         {
-            return line.ToString().GetColumnFromLineOffset(lineOffset, tabSize);
+            return line.ToString().AsSpan().GetColumnFromLineOffset(lineOffset, tabSize);
         }
 
         public static int GetLineOffsetFromColumn(this TextLine line, int column, int tabSize)
         {
-            return line.ToString().GetLineOffsetFromColumn(column, tabSize);
+            return line.ToString().AsSpan().GetLineOffsetFromColumn(column, tabSize);
         }
     }
 }

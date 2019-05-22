@@ -154,7 +154,7 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
             return (token1.RawKind == 0) ? text.ToString(TextSpan.FromBounds(0, token2.SpanStart)) : text.ToString(TextSpan.FromBounds(token1.Span.End, token2.SpanStart));
         }
 
-        public static string GetTextBetween(SyntaxToken token1, SyntaxToken token2)
+        public static string GetTextBetween(in SyntaxToken token1, in SyntaxToken token2)
         {
             var builder = new StringBuilder();
             AppendTextBetween(token1, token2, builder);
@@ -162,7 +162,7 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
             return builder.ToString();
         }
 
-        public static void AppendTextBetween(SyntaxToken token1, SyntaxToken token2, StringBuilder builder)
+        public static void AppendTextBetween(in SyntaxToken token1, in SyntaxToken token2, StringBuilder builder)
         {
             Contract.ThrowIfTrue(token1.RawKind == 0 && token2.RawKind == 0);
             Contract.ThrowIfTrue(token1.Equals(token2));
@@ -197,13 +197,13 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
             AppendPartialLeadingTriviaText(token2, builder, token1.TrailingTrivia.FullSpan.End);
         }
 
-        private static void AppendTextBetweenTwoAdjacentTokens(SyntaxToken token1, SyntaxToken token2, StringBuilder builder)
+        private static void AppendTextBetweenTwoAdjacentTokens(in SyntaxToken token1, in SyntaxToken token2, StringBuilder builder)
         {
             AppendTrailingTriviaText(token1, builder);
             AppendLeadingTriviaText(token2, builder);
         }
 
-        private static void AppendLeadingTriviaText(SyntaxToken token, StringBuilder builder)
+        private static void AppendLeadingTriviaText(in SyntaxToken token, StringBuilder builder)
         {
             if (!token.HasLeadingTrivia)
             {
@@ -220,7 +220,7 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
         /// If the token1 is expected to be part of the leading trivia of the token2 then the trivia
         /// before the token1FullSpanEnd, which the fullspan end of the token1 should be ignored
         /// </summary>
-        private static void AppendPartialLeadingTriviaText(SyntaxToken token, StringBuilder builder, int token1FullSpanEnd)
+        private static void AppendPartialLeadingTriviaText(in SyntaxToken token, StringBuilder builder, int token1FullSpanEnd)
         {
             if (!token.HasLeadingTrivia)
             {
@@ -238,7 +238,7 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
             }
         }
 
-        private static void AppendTrailingTriviaText(SyntaxToken token, StringBuilder builder)
+        private static void AppendTrailingTriviaText(in SyntaxToken token, StringBuilder builder)
         {
             if (!token.HasTrailingTrivia)
             {
@@ -266,7 +266,7 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
             return TextSpan.FromBounds(startPosition, endPosition);
         }
 
-        private static int GetEndPositionOfSpan(SyntaxToken token)
+        private static int GetEndPositionOfSpan(in SyntaxToken token)
         {
             var nextToken = token.GetNextToken();
             if (nextToken.RawKind != 0)
@@ -291,7 +291,7 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
             return nextToken.SpanStart;
         }
 
-        public static int GetStartPositionOfSpan(SyntaxToken token)
+        public static int GetStartPositionOfSpan(in SyntaxToken token)
         {
             var previousToken = token.GetPreviousToken();
             if (previousToken.RawKind != 0)
@@ -347,7 +347,7 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
             return null;
         }
 
-        public static bool HasAnyWhitespaceElasticTrivia(SyntaxToken previousToken, SyntaxToken currentToken)
+        public static bool HasAnyWhitespaceElasticTrivia(in SyntaxToken previousToken, in SyntaxToken currentToken)
         {
             if ((!previousToken.ContainsAnnotations && !currentToken.ContainsAnnotations) ||
                 (!previousToken.HasTrailingTrivia && !currentToken.HasLeadingTrivia))

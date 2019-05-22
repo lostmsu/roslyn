@@ -138,7 +138,7 @@ namespace Microsoft.CodeAnalysis.Formatting
         }
 
         public static void ProcessTextBetweenTokens(
-            this string text,
+            this ReadOnlySpan<char> text,
             TreeData treeInfo,
             SyntaxToken baseToken,
             int tabSize,
@@ -158,7 +158,7 @@ namespace Microsoft.CodeAnalysis.Formatting
 
             // with tab, more expensive way. get column of token1 and then calculate right space amount
             var initialColumn = baseToken.RawKind == 0 ? 0 /* the very beginning of the file */ : treeInfo.GetOriginalColumn(tabSize, baseToken);
-            spaceOrIndentation = text.ConvertTabToSpace(tabSize, baseToken.ToString().GetTextColumn(tabSize, initialColumn), text.Length);
+            spaceOrIndentation = text.ConvertTabToSpace(tabSize, baseToken.ToString().AsSpan().GetTextColumn(tabSize, initialColumn), text.Length);
         }
 
         private static readonly char[] s_trimChars = new char[] { '\r', '\n' };
@@ -175,14 +175,14 @@ namespace Microsoft.CodeAnalysis.Formatting
             var builder = StringBuilderPool.Allocate();
 
             var trimmedTriviaText = triviaText.TrimEnd(s_trimChars);
-            var nonWhitespaceCharIndex = GetFirstNonWhitespaceIndexInString(triviaText);
+            var nonWhitespaceCharIndex = GetFirstNonWhitespaceIndexInString(triviaText.AsSpan());
             if (nonWhitespaceCharIndex == -1)
             {
                 isEmptyString = true;
                 nonWhitespaceCharIndex = triviaText.Length;
             }
 
-            var newIndentation = GetNewIndentationForComments(triviaText, nonWhitespaceCharIndex, forceIndentation, indentation, indentationDelta, tabSize);
+            var newIndentation = GetNewIndentationForComments(triviaText.AsSpan(), nonWhitespaceCharIndex, forceIndentation, indentation, indentationDelta, tabSize);
 
             builder.AppendIndentationString(newIndentation, useTab, tabSize);
             if (!isEmptyString)
@@ -219,10 +219,10 @@ namespace Microsoft.CodeAnalysis.Formatting
             for (int i = 1; i < lines.Length; i++)
             {
                 var line = lines[i].TrimEnd(s_trimChars);
-                var nonWhitespaceCharIndex = GetFirstNonWhitespaceIndexInString(line);
+                var nonWhitespaceCharIndex = GetFirstNonWhitespaceIndexInString(line.AsSpan());
                 if (nonWhitespaceCharIndex >= 0)
                 {
-                    var newIndentation = GetNewIndentationForComments(line, nonWhitespaceCharIndex, forceIndentation, indentation, indentationDelta, tabSize);
+                    var newIndentation = GetNewIndentationForComments(line.AsSpan(), nonWhitespaceCharIndex, forceIndentation, indentation, indentationDelta, tabSize);
                     builder.AppendIndentationString(newIndentation, useTab, tabSize);
                     builder.Append(line, nonWhitespaceCharIndex, line.Length - nonWhitespaceCharIndex);
                 }
@@ -236,7 +236,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             return StringBuilderPool.ReturnAndFree(builder);
         }
 
-        private static int GetNewIndentationForComments(this string line, int nonWhitespaceCharIndex, bool forceIndentation, int indentation, int indentationDelta, int tabSize)
+        private static int GetNewIndentationForComments(this ReadOnlySpan<char> line, int nonWhitespaceCharIndex, bool forceIndentation, int indentation, int indentationDelta, int tabSize)
         {
             if (forceIndentation)
             {
@@ -247,7 +247,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             return Math.Max(currentIndentation + indentationDelta, 0);
         }
 
-        public static int GetFirstNonWhitespaceIndexInString(this string text)
+        public static int GetFirstNonWhitespaceIndexInString(this ReadOnlySpan<char> text)
         {
             for (int i = 0; i < text.Length; i++)
             {

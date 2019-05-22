@@ -59,7 +59,7 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             return false;
         }
 
-        public static bool AreOnSameLine(this SourceText text, SyntaxToken token1, SyntaxToken token2)
+        public static bool AreOnSameLine(this SourceText text, in SyntaxToken token1, in SyntaxToken token2)
         {
             return token1.RawKind != 0 &&
                 token2.RawKind != 0 &&

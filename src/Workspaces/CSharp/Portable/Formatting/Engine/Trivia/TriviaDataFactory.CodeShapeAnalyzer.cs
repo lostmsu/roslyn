@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -124,7 +125,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
 
                 // right after end of line trivia. calculate indentation for current line
                 Debug.Assert(trivia.ToString() == trivia.ToFullString());
-                var text = trivia.ToString();
+                var text = trivia.ToString().AsSpan();
 
                 // if text contains tab, we will give up perf optimization and use more expensive one to see whether we need to replace this trivia
                 if (text.IndexOf('\t') >= 0)
@@ -325,7 +326,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
                                 break;
                             }
 
-                            var xmlCommentText = xmlTrivia.ToString();
+                            var xmlCommentText = xmlTrivia.ToString().AsSpan();
 
                             // "///" == 3.
                             if (xmlCommentText.GetColumnFromLineOffset(xmlCommentText.Length - 3, tabSize) != indentation)
