@@ -17,7 +17,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                 _debugNodeData = new Node(root);
             }
 
-            public override string GetTextBetween(SyntaxToken token1, SyntaxToken token2)
+            public override string GetTextBetween(in SyntaxToken token1, in SyntaxToken token2)
             {
                 var text = base.GetTextBetween(token1, token2);
                 Contract.ThrowIfFalse(text == _debugNodeData.GetTextBetween(token1, token2));

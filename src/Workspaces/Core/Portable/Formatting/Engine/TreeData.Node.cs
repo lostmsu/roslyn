@@ -16,7 +16,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                 Contract.ThrowIfFalse(root.GetFirstToken(includeZeroWidth: true).RawKind != 0);
             }
 
-            public override int GetOriginalColumn(int tabSize, SyntaxToken token)
+            public override int GetOriginalColumn(int tabSize, in SyntaxToken token)
             {
                 Contract.ThrowIfTrue(token.RawKind == 0);
 
@@ -29,7 +29,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                 return lineText.GetColumnFromLineOffset(lineText.Length, tabSize);
             }
 
-            private SyntaxToken GetTokenWithLineBreaks(SyntaxToken token)
+            private SyntaxToken GetTokenWithLineBreaks(in SyntaxToken token)
             {
                 var currentToken = token.GetPreviousToken(includeZeroWidth: true);
 
@@ -46,7 +46,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                 return default;
             }
 
-            public override string GetTextBetween(SyntaxToken token1, SyntaxToken token2)
+            public override string GetTextBetween(in SyntaxToken token1, in SyntaxToken token2)
             {
                 var builder = StringBuilderPool.Allocate();
 

@@ -28,12 +28,12 @@ namespace Microsoft.CodeAnalysis.Formatting
                 _treeData = (text == null) ? (TreeData)new Node(root) : new NodeAndText(root, text);
             }
 
-            public override string GetTextBetween(SyntaxToken token1, SyntaxToken token2)
+            public override string GetTextBetween(in SyntaxToken token1, in SyntaxToken token2)
             {
                 return _treeData.GetTextBetween(token1, token2);
             }
 
-            public override int GetOriginalColumn(int tabSize, SyntaxToken token)
+            public override int GetOriginalColumn(int tabSize, in SyntaxToken token)
             {
                 if (_treeData is NodeAndText)
                 {

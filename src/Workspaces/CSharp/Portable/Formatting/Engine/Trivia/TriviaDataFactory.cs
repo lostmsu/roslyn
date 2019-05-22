@@ -72,7 +72,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
             return new ComplexTrivia(this.OptionSet, this.TreeInfo, token, default);
         }
 
-        public override TriviaData Create(SyntaxToken token1, SyntaxToken token2)
+        public override TriviaData Create(in SyntaxToken token1, in SyntaxToken token2)
         {
             // no trivia in between
             if (!token1.HasTrailingTrivia && !token2.HasLeadingTrivia)
@@ -92,7 +92,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
             return new ComplexTrivia(this.OptionSet, this.TreeInfo, token1, token2);
         }
 
-        private bool ContainsOnlyWhitespace(Analyzer.AnalysisResult result)
+        private bool ContainsOnlyWhitespace(in Analyzer.AnalysisResult result)
         {
             return
                 !result.HasComments &&
@@ -102,7 +102,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
                 !result.HasConflictMarker;
         }
 
-        private TriviaData GetWhitespaceOnlyTriviaInfo(SyntaxToken token1, SyntaxToken token2, Analyzer.AnalysisResult result)
+        private TriviaData GetWhitespaceOnlyTriviaInfo(in SyntaxToken token1, in SyntaxToken token2, in Analyzer.AnalysisResult result)
         {
             if (!ContainsOnlyWhitespace(result))
             {
@@ -134,7 +134,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
             return GetWhitespaceTriviaData(lineCountAndIndentation.Item2, lineCountAndIndentation.Item3, canUseTriviaAsItIs, result.TreatAsElastic);
         }
 
-        private int CalculateSpaces(SyntaxToken token1, SyntaxToken token2)
+        private int CalculateSpaces(in SyntaxToken token1, in SyntaxToken token2)
         {
             var initialColumn = (token1.RawKind == 0) ? 0 : this.TreeInfo.GetOriginalColumn(this.OptionSet.GetOption(FormattingOptions.TabSize, LanguageNames.CSharp), token1) + token1.Span.Length;
             var textSnippet = this.TreeInfo.GetTextBetween(token1, token2);
@@ -142,7 +142,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
             return textSnippet.ConvertTabToSpace(this.OptionSet.GetOption(FormattingOptions.TabSize, LanguageNames.CSharp), initialColumn, textSnippet.Length);
         }
 
-        private ValueTuple<bool, int, int> GetLineBreaksAndIndentation(Analyzer.AnalysisResult result)
+        private ValueTuple<bool, int, int> GetLineBreaksAndIndentation(in Analyzer.AnalysisResult result)
         {
             Debug.Assert(result.Tab >= 0);
             Debug.Assert(result.LineBreaks >= 0);
@@ -182,7 +182,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
             return ValueTuple.Create(true, result.LineBreaks, indentation);
         }
 
-        private int GetSpaceOnSingleLine(Analyzer.AnalysisResult result)
+        private int GetSpaceOnSingleLine(in Analyzer.AnalysisResult result)
         {
             if (result.HasTrailingSpace || result.HasUnknownWhitespace || result.LineBreaks > 0 || result.Tab > 0)
             {

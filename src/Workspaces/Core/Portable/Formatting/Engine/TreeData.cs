@@ -46,17 +46,17 @@ namespace Microsoft.CodeAnalysis.Formatting
             _lastToken = _root.GetLastToken(includeZeroWidth: true);
         }
 
-        public abstract string GetTextBetween(SyntaxToken token1, SyntaxToken token2);
-        public abstract int GetOriginalColumn(int tabSize, SyntaxToken token);
+        public abstract string GetTextBetween(in SyntaxToken token1, in SyntaxToken token2);
+        public abstract int GetOriginalColumn(int tabSize, in SyntaxToken token);
 
         public SyntaxNode Root => _root;
 
-        public bool IsFirstToken(SyntaxToken token)
+        public bool IsFirstToken(in SyntaxToken token)
         {
             return _firstToken == token;
         }
 
-        public bool IsLastToken(SyntaxToken token)
+        public bool IsLastToken(in SyntaxToken token)
         {
             return _lastToken == token;
         }

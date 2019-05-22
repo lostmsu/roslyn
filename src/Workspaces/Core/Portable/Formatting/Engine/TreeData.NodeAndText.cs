@@ -19,7 +19,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                 _text = text;
             }
 
-            public override int GetOriginalColumn(int tabSize, SyntaxToken token)
+            public override int GetOriginalColumn(int tabSize, in SyntaxToken token)
             {
                 Contract.ThrowIfTrue(token.RawKind == 0);
 
@@ -28,7 +28,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                 return line.GetColumnFromLineOffset(token.SpanStart - line.Start, tabSize);
             }
 
-            public override string GetTextBetween(SyntaxToken token1, SyntaxToken token2)
+            public override string GetTextBetween(in SyntaxToken token1, in SyntaxToken token2)
             {
                 if (token1.RawKind == 0)
                 {

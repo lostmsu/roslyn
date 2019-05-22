@@ -100,6 +100,6 @@ namespace Microsoft.CodeAnalysis.Formatting
 
         public abstract TriviaData CreateLeadingTrivia(SyntaxToken token);
         public abstract TriviaData CreateTrailingTrivia(SyntaxToken token);
-        public abstract TriviaData Create(SyntaxToken token1, SyntaxToken token2);
+        public abstract TriviaData Create(in SyntaxToken token1, in SyntaxToken token2);
     }
 }

@@ -129,13 +129,13 @@ namespace Microsoft.CodeAnalysis.Formatting
             return _tokens[index];
         }
 
-        public TokenData GetTokenData(SyntaxToken token)
+        public TokenData GetTokenData(in SyntaxToken token)
         {
             var indexInStream = GetTokenIndexInStream(token);
             return new TokenData(this, indexInStream, token);
         }
 
-        public TokenData GetPreviousTokenData(TokenData tokenData)
+        public TokenData GetPreviousTokenData(in TokenData tokenData)
         {
             if (tokenData.IndexInStream > 0 && tokenData.IndexInStream < this.TokenCount)
             {
@@ -153,7 +153,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             return new TokenData(this, -1, previousToken);
         }
 
-        public TokenData GetNextTokenData(TokenData tokenData)
+        public TokenData GetNextTokenData(in TokenData tokenData)
         {
             if (tokenData.IndexInStream >= 0 && tokenData.IndexInStream < this.TokenCount - 1)
             {
@@ -170,7 +170,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             return new TokenData(this, -1, nextToken);
         }
 
-        internal SyntaxToken FirstTokenOfBaseTokenLine(SyntaxToken token)
+        internal SyntaxToken FirstTokenOfBaseTokenLine(in SyntaxToken token)
         {
             var currentTokenData = this.GetTokenData(token);
             return FirstTokenOfBaseTokenLine(ref currentTokenData);
@@ -187,17 +187,17 @@ namespace Microsoft.CodeAnalysis.Formatting
             return tokenData.Token;
         }
 
-        public bool TwoTokensOriginallyOnSameLine(SyntaxToken token1, SyntaxToken token2)
+        public bool TwoTokensOriginallyOnSameLine(in SyntaxToken token1, in SyntaxToken token2)
         {
             return TwoTokensOnSameLineWorker(token1, token2, new OriginalTriviaDataGetter(this));
         }
 
-        public bool TwoTokensOnSameLine(SyntaxToken token1, SyntaxToken token2)
+        public bool TwoTokensOnSameLine(in SyntaxToken token1, in SyntaxToken token2)
         {
             return TwoTokensOnSameLineWorker(token1, token2, new TriviaDataGetter(this));
         }
 
-        private bool TwoTokensOnSameLineWorker<TDataGetter>(SyntaxToken token1, SyntaxToken token2, TDataGetter dataGetter)
+        private bool TwoTokensOnSameLineWorker<TDataGetter>(in SyntaxToken token1, in SyntaxToken token2, TDataGetter dataGetter)
             where TDataGetter : ITriviaDataGetter
         {
             // check easy case
@@ -260,19 +260,19 @@ namespace Microsoft.CodeAnalysis.Formatting
             }
         }
 
-        public int GetCurrentColumn(SyntaxToken token)
+        public int GetCurrentColumn(in SyntaxToken token)
         {
             var tokenWithIndex = this.GetTokenData(token);
 
             return GetCurrentColumn(tokenWithIndex);
         }
 
-        public int GetCurrentColumn(TokenData tokenData)
+        public int GetCurrentColumn(in TokenData tokenData)
         {
             return GetColumn(tokenData, new TriviaDataGetter(this));
         }
 
-        public int GetOriginalColumn(SyntaxToken token)
+        public int GetOriginalColumn(in SyntaxToken token)
         {
             var tokenWithIndex = this.GetTokenData(token);
             return GetColumn(tokenWithIndex, new OriginalTriviaDataGetter(this));
@@ -280,7 +280,7 @@ namespace Microsoft.CodeAnalysis.Formatting
 
         interface ITriviaDataGetter
         {
-            TriviaData GetTriviaData(TokenData token1, TokenData token2);
+            TriviaData GetTriviaData(in TokenData token1, in TokenData token2);
         }
 
         struct TriviaDataGetter : ITriviaDataGetter
@@ -288,7 +288,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             readonly TokenStream _tokenStream;
             public TriviaDataGetter(TokenStream tokenStream) { _tokenStream = tokenStream; }
 
-            public TriviaData GetTriviaData(TokenData token1, TokenData token2) => _tokenStream.GetTriviaData(token1, token2);
+            public TriviaData GetTriviaData(in TokenData token1, in TokenData token2) => _tokenStream.GetTriviaData(in token1, in token2);
         }
 
         struct OriginalTriviaDataGetter : ITriviaDataGetter
@@ -296,7 +296,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             readonly TokenStream _tokenStream;
             public OriginalTriviaDataGetter(TokenStream tokenStream) { _tokenStream = tokenStream; }
 
-            public TriviaData GetTriviaData(TokenData token1, TokenData token2) => _tokenStream.GetOriginalTriviaData(token1, token2);
+            public TriviaData GetTriviaData(in TokenData token1, in TokenData token2) => _tokenStream.GetOriginalTriviaData(in token1, in token2);
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             return spaces + dataGetter.GetTriviaData(previousToken, tokenData).Spaces;
         }
 
-        public void GetTokenLength(SyntaxToken token, out int length, out bool onMultipleLines)
+        public void GetTokenLength(in SyntaxToken token, out int length, out bool onMultipleLines)
         {
             // here, we can't just add token's length since there is token that span multiple lines.
             var text = token.ToString();
@@ -396,17 +396,17 @@ namespace Microsoft.CodeAnalysis.Formatting
             }
         }
 
-        public TriviaData GetTriviaData(TokenData token1, TokenData token2)
+        public TriviaData GetTriviaData(in TokenData token1, in TokenData token2)
         {
             // special cases (beginning of a file, end of a file)
             if (_treeData.IsFirstToken(token2.Token))
             {
-                return this.FormatBeginningOfTree ? GetTriviaDataAtBeginningOfTree() : GetOriginalTriviaData(token1, token2);
+                return this.FormatBeginningOfTree ? GetTriviaDataAtBeginningOfTree() : GetOriginalTriviaData(in token1, in token2);
             }
 
             if (_treeData.IsLastToken(token1.Token))
             {
-                return this.FormatEndOfTree ? GetTriviaDataAtEndOfTree() : GetOriginalTriviaData(token1, token2);
+                return this.FormatEndOfTree ? GetTriviaDataAtEndOfTree() : GetOriginalTriviaData(in token1, in token2);
             }
 
             // normal cases
@@ -417,13 +417,13 @@ namespace Microsoft.CodeAnalysis.Formatting
             // one of token is out side of cached token stream
             if (token1.IndexInStream < 0 || token2.IndexInStream < 0)
             {
-                return GetOriginalTriviaData(token1, token2);
+                return GetOriginalTriviaData(in token1, in token2);
             }
 
             return GetTriviaData(token1.IndexInStream);
         }
 
-        private TriviaData GetOriginalTriviaData(TokenData token1, TokenData token2)
+        private TriviaData GetOriginalTriviaData(in TokenData token1, in TokenData token2)
         {
             // special cases (beginning of a file, end of a file)
             if (_treeData.IsFirstToken(token2.Token))
@@ -496,7 +496,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             return _cachedOriginalTriviaInfo[pairIndex];
         }
 
-        public bool IsFirstTokenOnLine(SyntaxToken token)
+        public bool IsFirstTokenOnLine(in SyntaxToken token)
         {
             Contract.ThrowIfTrue(token.RawKind == 0);
 
@@ -527,7 +527,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             Debug.Assert(tokenData2 == tokenData1.GetNextTokenData());
 
             // see if there are changes for a given token pair
-            return this.GetTriviaData(tokenData1, tokenData2).SecondTokenIsFirstTokenOnLine;
+            return this.GetTriviaData(in tokenData1, in tokenData2).SecondTokenIsFirstTokenOnLine;
         }
 
         /// <summary>
@@ -555,7 +555,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             }
         }
         private static int Bounded(int value, int min, int max) => Math.Min(max, Math.Max(value, min));
-        private int GetTokenIndexInStream(SyntaxToken token)
+        private int GetTokenIndexInStream(in SyntaxToken token)
         {
             GetTokenIndexBounds(token.Position, out int lowerBound, out int upperBound);
             var tokenIndex = _tokens.BinarySearch(lowerBound, length: upperBound - lowerBound + 1, token, TokenOrderComparer.Instance);
