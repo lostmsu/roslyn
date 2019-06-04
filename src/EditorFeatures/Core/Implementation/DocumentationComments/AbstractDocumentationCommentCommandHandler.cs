@@ -694,19 +694,19 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.DocumentationComments
             var useTabs = options.GetOption(FormattingOptions.UseTabs);
             var tabSize = options.GetOption(FormattingOptions.TabSize);
 
-            var previousLineText = previousLine.ToString();
+            var previousLineText = previousLine.ToString().AsSpan();
             var firstNonWhitespaceColumn = previousLineText.GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(tabSize);
 
             var trimmedPreviousLine = previousLineText.Trim();
-            Debug.Assert(trimmedPreviousLine.StartsWith(ExteriorTriviaText), "Unexpected: previous line does not begin with doc comment exterior trivia.");
+            Debug.Assert(trimmedPreviousLine.StartsWith(ExteriorTriviaText.AsSpan()), "Unexpected: previous line does not begin with doc comment exterior trivia.");
 
             // skip exterior trivia.
-            trimmedPreviousLine = trimmedPreviousLine.Substring(3);
+            trimmedPreviousLine = trimmedPreviousLine.Slice(3);
 
             var firstNonWhitespaceOffsetInPreviousXmlText = trimmedPreviousLine.GetFirstNonWhitespaceOffset();
 
             var extraIndent = firstNonWhitespaceOffsetInPreviousXmlText != null
-                ? trimmedPreviousLine.Substring(0, firstNonWhitespaceOffsetInPreviousXmlText.Value)
+                ? trimmedPreviousLine.Slice(0, firstNonWhitespaceOffsetInPreviousXmlText.Value).ToString()
                 : " ";
 
             return firstNonWhitespaceColumn.CreateIndentationString(useTabs, tabSize) + ExteriorTriviaText + extraIndent;

@@ -64,7 +64,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Formatting
             Return New ComplexTrivia(Me.OptionSet, Me.TreeInfo, token, Nothing)
         End Function
 
-        Public Overrides Function Create(token1 As SyntaxToken, token2 As SyntaxToken) As TriviaData
+        Public Overrides Function Create(ByRef token1 As SyntaxToken, ByRef token2 As SyntaxToken) As TriviaData
             ' no trivia in between
             If (Not token1.HasTrailingTrivia) AndAlso (Not token2.HasLeadingTrivia) Then
                 Debug.Assert(String.IsNullOrWhiteSpace(Me.TreeInfo.GetTextBetween(token1, token2)))

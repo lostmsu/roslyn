@@ -122,17 +122,17 @@ namespace Microsoft.CodeAnalysis.Text.Shared.Extensions
 
         public static int GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(this ITextSnapshotLine line, int tabSize)
         {
-            return line.GetText().GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(tabSize);
+            return line.GetText().AsSpan().GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(tabSize);
         }
 
         public static int GetColumnFromLineOffset(this ITextSnapshotLine line, int lineOffset, IEditorOptions editorOptions)
         {
-            return line.GetText().GetColumnFromLineOffset(lineOffset, editorOptions.GetTabSize());
+            return line.GetText().AsSpan().GetColumnFromLineOffset(lineOffset, editorOptions.GetTabSize());
         }
 
         public static int GetLineOffsetFromColumn(this ITextSnapshotLine line, int column, IEditorOptions editorOptions)
         {
-            return line.GetText().GetLineOffsetFromColumn(column, editorOptions.GetTabSize());
+            return line.GetText().AsSpan().GetLineOffsetFromColumn(column, editorOptions.GetTabSize());
         }
 
         /// <summary>

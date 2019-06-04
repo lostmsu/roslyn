@@ -27,7 +27,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Formatting
                 Contract.ThrowIfNull(treeInfo)
             End Sub
 
-            Protected Overrides Sub ExtractLineAndSpace(text As String, ByRef lines As Integer, ByRef spaces As Integer)
+            Protected Overrides Sub ExtractLineAndSpace(text As ReadOnlySpan(Of Char), ByRef lines As Integer, ByRef spaces As Integer)
                 text.ProcessTextBetweenTokens(Me.TreeInfo, Me.Token1, Me.OptionSet.GetOption(FormattingOptions.TabSize, LanguageNames.VisualBasic), lines, spaces)
             End Sub
 
