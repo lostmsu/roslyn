@@ -10,6 +10,7 @@
 
     <!-- NuGet -->
     <IsPackable>true</IsPackable>
+    <PackageId>LostTech.CodeAnalysis.CSharp.Workspaces</PackageId>
     <PackageDescription>
       .NET Compiler Platform ("Roslyn") support for analyzing C# projects and solutions.
     </PackageDescription>
